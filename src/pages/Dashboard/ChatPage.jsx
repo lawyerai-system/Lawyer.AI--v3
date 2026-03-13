@@ -39,15 +39,15 @@ const Sidebar = styled.div`
   flex-shrink: 0;
   border-right: 1px solid rgba(255,255,255,0.1);
   position: sticky;
-  top: 80px;
-  height: calc(100vh - 80px);
-  overflow-y: auto;
+  top: 75px;
+  height: calc(100vh - 75px);
+  overflow-y: hidden; /* Main sidebar doesn't scroll, inner list does */
   
   @media (max-width: 768px) {
     position: fixed;
-    top: 60px;
-    height: calc(100vh - 60px);
-    z-index: 200;
+    top: 75px;
+    height: calc(100vh - 75px);
+    z-index: 2100;
     box-shadow: ${props => props.$isOpen ? '10px 0 30px rgba(0,0,0,0.5)' : 'none'};
   }
 `;
@@ -62,8 +62,8 @@ const MobileHeader = styled.div`
     background: #343541;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     position: sticky;
-    top: 0;
-    z-index: 100;
+    top: 75px; /* Push below global navbar */
+    z-index: 1500;
     font-weight: 600;
   }
 `;
@@ -341,45 +341,132 @@ const HistoryList = styled.div`
 
 // Re-defining other components to avoid errors
 const SidebarHeader = styled.div`
-  padding: 0.8rem;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: #202123;
+  flex-shrink: 0;
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    h3 {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #8e8ea0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+  }
+
+  .action-btns {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+  }
+`;
+
+const CloseSidebarBtn = styled.button`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ef4444;
+  }
 `;
-const CloseSidebarBtn = styled.button` background: none; border: none; color: white; `;
 const NewChatBtn = styled.button`
-  width: 90%;
-  margin: 0 auto 1rem auto;
-  padding: 0.6rem;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 6px;
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  background: rgba(108, 93, 211, 0.1);
+  border: 1px solid rgba(108, 93, 211, 0.2);
+  border-radius: 8px;
   color: white;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
-  &:hover { background: rgba(255,255,255,0.1); }
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+
+  @media (max-width: 480px) {
+      span { display: none; }
+      padding: 0.6rem;
+  }
 `;
 const HistoryItem = styled.div`
-  padding: 0.8rem;
-  border-radius: 6px;
+  margin: 0.2rem 0.5rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #ececf1;
-  background: ${props => props.$active ? '#343541' : 'transparent'};
-  &:hover { background: #2a2b32; }
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: ${props => props.$active ? 'white' : '#ececf1'};
+  background: ${props => props.$active ? 'rgba(52, 53, 65, 1)' : 'transparent'};
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255,255,255,0.05);
+    .delete-btn { opacity: 1; }
+  }
+
+  .item-main {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex: 1;
+      overflow: hidden;
+      
+      span {
+          font-size: 0.85rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+      }
+  }
 `;
-const DeleteBtn = styled.button` background: none; border: none; color: #aaa; &:hover { color: #fff; } cursor: pointer; `;
+const DeleteBtn = styled.button` 
+  background: none; 
+  border: none; 
+  color: #565869; 
+  opacity: 0; 
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:hover { 
+      color: #ef4444; 
+      background: rgba(239, 68, 68, 0.1);
+  }
+
+  @media (max-width: 768px) {
+      opacity: 1;
+  }
+`;
 const SuggestionCard = styled.div`
   background: rgba(255,255,255,0.05);
   padding: 1rem;
@@ -428,7 +515,11 @@ const ChatPage = () => {
   useEffect(() => { resizeInput(); }, [input]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Only scroll to bottom if there are actual messages or we are loading a response
+    // This prevents the page from jumping to the footer on initial empty load
+    if (messages.length > 0 || loading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages, loading]);
 
   useEffect(() => {
@@ -586,32 +677,50 @@ const ChatPage = () => {
 
       <Sidebar $isOpen={isSidebarOpen}>
         <SidebarHeader>
-          <button style={{ background: 'none', border: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600' }} onClick={handleNewChat}>
-            <div style={{ padding: '5px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '5px' }}>
-              <FaPlus size={12} />
-            </div>
-            New chat
-          </button>
-          <CloseSidebarBtn onClick={() => setIsSidebarOpen(false)}>
-            <FaXmark size={20} />
-          </CloseSidebarBtn>
+          <div className="header-top">
+            <h3>History</h3>
+            <CloseSidebarBtn onClick={() => setIsSidebarOpen(false)}>
+                <FaXmark size={18} />
+            </CloseSidebarBtn>
+          </div>
+          
+          <div className="action-btns">
+            <NewChatBtn onClick={handleNewChat}>
+              <FaPlus size={14} />
+              <span>New Chat</span>
+            </NewChatBtn>
+          </div>
         </SidebarHeader>
 
         <HistoryList>
           {sessions.map(s => (
             <HistoryItem key={s._id} $active={currentSessionId === s._id} onClick={() => loadSession(s._id)}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
-                <FaFileContract size={14} color={currentSessionId === s._id ? 'white' : '#aaa'} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</span>
+              <div className="item-main">
+                <FaFileContract size={14} style={{ opacity: currentSessionId === s._id ? 1 : 0.5 }} />
+                <span>{s.title}</span>
               </div>
-              <DeleteBtn className="delete-btn" onClick={(e) => onDeleteClick(e, s)}><FaTrash size={12} /></DeleteBtn>
+              <DeleteBtn className="delete-btn" onClick={(e) => onDeleteClick(e, s)}>
+                  <FaTrash size={12} />
+              </DeleteBtn>
             </HistoryItem>
           ))}
           {sessions.length === 0 && (
-            <div style={{ padding: '1rem', color: '#8e8ea0', fontSize: '0.85rem', textAlign: 'center' }}>No chat history.</div>
+            <div style={{ padding: '2rem 1rem', color: '#8e8ea0', fontSize: '0.8rem', textAlign: 'center' }}>
+                <FaRobot size={24} style={{ display: 'block', margin: '0 auto 1rem', opacity: 0.2 }} />
+                No chat history found.
+            </div>
           )}
         </HistoryList>
       </Sidebar>
+<style>{`
+  .fa-spin {
+    animation: spin 2s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+`}</style>
 
       <MainChatArea>
         {/* Mobile Sticky Header */}

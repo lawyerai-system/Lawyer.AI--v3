@@ -184,8 +184,8 @@ const LandingFooter = () => {
             <h4>Contact</h4>
             <ul style={{ fontSize: '0.85rem' }}>
               <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Mail size={14} /> hetbhalani44@gmail.com</li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Phone size={14} /> +91 90168 04524 (Kavya)</li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><MapPin size={14} /> Ahmedabad, India</li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Phone size={14} /> +91 79848 49841</li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><MapPin size={14} /> Ahmedabad & Pune, India</li>
             </ul>
           </FooterColumn>
         </FooterGrid>
@@ -196,8 +196,8 @@ const LandingFooter = () => {
           </p>
           <SocialLinks>
             <a href="https://github.com/Hetshah1203"><Github size={18} /></a>
-            <a href="https://x.com/KikaniHet"><Twitter size={18} /></a>
-            <a href="https://www.linkedin.com/in/jainam-gajjar-113430281"><Linkedin size={18} /></a>
+            {/*<a href="https://x.com/KikaniHet"><Twitter size={18} /></a>*/}
+            <a href="https://www.linkedin.com/in/het-kikani-67817236b/"><Linkedin size={18} /></a>
             <a href="https://www.instagram.com/hetansh_3012"><Instagram size={18} /></a>
           </SocialLinks>
         </FooterBottom>

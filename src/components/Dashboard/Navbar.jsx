@@ -156,6 +156,14 @@ const UserInfo = styled.div`
     display: block;
     line-height: 1;
     margin-bottom: 2px;
+    max-width: 100px; /* Truncate long names */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 480px) {
+      max-width: 80px;
+    }
   }
 
   .role {
@@ -212,6 +220,8 @@ const MobileMenu = styled.div`
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1001;
   box-shadow: -20px 0 60px rgba(0,0,0,0.8);
+  overflow-y: auto; // Fixed: Allow scrolling inside sidebar
+  -webkit-overflow-scrolling: touch;
 `;
 
 const Overlay = styled.div`
@@ -423,6 +433,15 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isMobileOpen]);
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -480,8 +499,8 @@ const Navbar = () => {
         <NavLinks>
           {isFeatureEnabled('legalAI') && <StyledLink to={resolvePath('/chat')}>AI Chat <LiveBadge>AI</LiveBadge></StyledLink>}
 
-          {/* Blogs: Accessible to all roles (Read) */}
-          {(user?.role === 'lawyer' || user?.role === 'law_student' || user?.role === 'civilian' || user?.role === 'admin') && (
+          {/* Blogs: Restricted for Civilians */}
+          {(user?.role === 'lawyer' || user?.role === 'law_student' || user?.role === 'admin') && (
             <StyledLink to={resolvePath('/blog')}>Blog</StyledLink>
           )}
 
@@ -571,8 +590,8 @@ const Navbar = () => {
           </UserDropdown>
         </div>
 
-        <MobileMenuBtn onClick={() => setIsMobileOpen(true)}>
-          <FaBars />
+        <MobileMenuBtn onClick={() => setIsMobileOpen(!isMobileOpen)}>
+          {isMobileOpen ? <FaXmark /> : <FaBars />}
         </MobileMenuBtn>
       </NavContainer>
 
@@ -590,9 +609,21 @@ const Navbar = () => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
+          {/* Dashboard Link Added for Mobile Accessibility */}
+          <StyledLink to={getDashboardPath()} onClick={() => setIsMobileOpen(false)} style={{ color: 'var(--primary)', borderBottom: '1px solid rgba(108,93,211,0.2)', paddingBottom: '1rem' }}>
+            Dashboard Overview
+          </StyledLink>
           <StyledLink to={resolvePath('/chat')} onClick={() => setIsMobileOpen(false)}>AI Chat</StyledLink>
-          <StyledLink to={resolvePath('/blog')} onClick={() => setIsMobileOpen(false)}>Blog</StyledLink>
-          <StyledLink to={resolvePath('/courtroom')} onClick={() => setIsMobileOpen(false)}>Courtroom</StyledLink>
+          
+          {/* Blogs: Restricted for Civilians */}
+          {(user?.role === 'lawyer' || user?.role === 'law_student' || user?.role === 'admin') && (
+            <StyledLink to={resolvePath('/blog')} onClick={() => setIsMobileOpen(false)}>Blog</StyledLink>
+          )}
+          
+          {/* Courtroom: Restricted for Law Students */}
+          {(user?.role === 'civilian' || user?.role === 'lawyer' || user?.role === 'admin') && (
+            <StyledLink to={resolvePath('/courtroom')} onClick={() => setIsMobileOpen(false)}>Courtroom</StyledLink>
+          )}
           <StyledLink to={resolvePath('/case-library')} onClick={() => setIsMobileOpen(false)}>Library</StyledLink>
           <StyledLink to={resolvePath('/ipc')} onClick={() => setIsMobileOpen(false)}>IPC Finder</StyledLink>
 

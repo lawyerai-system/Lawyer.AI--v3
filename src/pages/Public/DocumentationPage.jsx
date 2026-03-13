@@ -21,8 +21,12 @@ const PageWrapper = styled.div`
 const Container = styled.div`
   max-width: 1000px;
   margin: 0 auto;
-  padding: 10rem 2rem 8rem;
+  padding: 8rem 2rem 6rem;
   flex: 1;
+
+  @media (max-width: 768px) {
+    padding: 6rem 1.5rem 4rem;
+  }
 `;
 
 const BackToHome = styled.div`
@@ -54,6 +58,11 @@ const Hero = styled.div`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -2px;
+
+    @media (max-width: 768px) {
+      font-size: 2.2rem;
+      letter-spacing: -1px;
+    }
   }
 
   p {
@@ -61,6 +70,10 @@ const Hero = styled.div`
     color: #a0a3bd;
     line-height: 1.7;
     max-width: 700px;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
   }
 `;
 
@@ -91,7 +104,7 @@ const Section = styled.section`
 
 const FeatureGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
 `;
 
@@ -146,6 +159,17 @@ const CodeBlock = styled.div`
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    font-size: 0.8rem;
+    border-radius: 12px;
+    word-break: break-all;
   }
 `;
 
@@ -243,10 +267,15 @@ const DocumentationPage = () => {
             </CodeBlock>
           </Section>
 
-          <Section style={{ textAlign: 'center', background: 'rgba(108, 93, 211, 0.05)', padding: '4rem', borderRadius: '40px', border: '1px dashed rgba(108, 93, 211, 0.2)' }}>
+          <Section style={{ textAlign: 'center', background: 'rgba(108, 93, 211, 0.05)', padding: '4rem 2rem', borderRadius: '40px', border: '1px dashed rgba(108, 93, 211, 0.2)' }} className="cta-section">
+            <style>{`
+                @media (max-width: 768px) {
+                    .cta-section { padding: 3rem 1.5rem !important; border-radius: 24px !important; }
+                }
+            `}</style>
             <GraduationCap size={48} color="#6c5dd3" style={{ marginBottom: '1.5rem' }} />
-            <h2 style={{ justifyContent: 'center', marginBottom: '1rem' }}>Need more help?</h2>
-            <p style={{ margin: '0 auto 2rem', maxWidth: '500px' }}>Join our 10,000+ legal professionals on the platform to access detailed video training and case studies.</p>
+            <h2 style={{ justifyContent: 'center', marginBottom: '1rem', fontSize: '1.5rem' }}>Need more help?</h2>
+            <p style={{ margin: '0 auto 2rem', maxWidth: '500px', fontSize: '0.95rem' }}>Join our 10,000+ legal professionals on the platform to access detailed video training and case studies.</p>
             <button
               onClick={() => navigate('/auth')}
               style={{

@@ -309,7 +309,7 @@ const ContactPage = () => {
               <p>Our legal experts and support staff are here to assist you with any inquiries regarding the platform or legal tools.</p>
 
               <div className="contact-item"><FaEnvelope /> hetbhalani44@gmail.com</div>
-              <div className="contact-item"><FaPhone /> +91 90168 04524 (Kavya)</div>
+              <div className="contact-item"><FaPhone /> +91 79848 49841</div>
               <div className="contact-item"><FaLocationDot /> Ahmedabad & Pune, India</div>
             </div>
 
