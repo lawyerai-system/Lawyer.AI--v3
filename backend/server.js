@@ -83,6 +83,8 @@ app.use('/api/predict', require('./routes/predictorRoutes'));
 app.use('/api/simulation', require('./routes/simulationRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/builder', require('./routes/builderRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
 // ...
 

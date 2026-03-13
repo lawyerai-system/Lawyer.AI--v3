@@ -321,9 +321,11 @@ const CaseManagement = () => {
                                     </Td>
                                     <Td>
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontWeight: 600 }}>{caseObj.uploader?.name || 'Shared User'}</span>
+                                            <span style={{ fontWeight: 600 }}>
+                                                {caseObj.uploader?.name || 'L.A.W. System'}
+                                            </span>
                                             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                                {caseObj.uploader?.email || 'System Upload'}
+                                                {caseObj.uploader?.role ? `${caseObj.uploader.role.replace('_', ' ')} Submission` : 'Official Record'}
                                             </span>
                                         </div>
                                     </Td>

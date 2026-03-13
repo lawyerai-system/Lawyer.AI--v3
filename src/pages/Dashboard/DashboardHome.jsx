@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
-import { FaScaleUnbalanced, FaRobot, FaBook, FaGavel, FaPenNib, FaLightbulb, FaUserGraduate, FaBrain, FaScaleBalanced, FaArrowRight } from 'react-icons/fa6';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+    FaScaleUnbalanced, FaRobot, FaBook, FaGavel, FaPenNib, FaLightbulb, 
+    FaUserGraduate, FaBrain, FaScaleBalanced, FaArrowRight, FaListCheck,
+    FaClock, FaChartLine, FaNewspaper, FaCirclePlay, FaFire
+} from 'react-icons/fa6';
+import api from '../../utils/axios';
+import { toast } from 'react-hot-toast';
 
 // Animations
 const fadeIn = keyframes`
@@ -17,16 +23,39 @@ const scrollText = keyframes`
 
 // Styled Components
 const Container = styled.div`
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   color: white;
   animation: ${fadeIn} 0.8s ease-out;
+  padding-bottom: 4rem;
 `;
 
+const DashboardGrid = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const MainContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
+
+const Sidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
+
+// --- Components ---
+
 const NewsWidget = styled.div`
-  background: rgba(25, 195, 125, 0.1);
-  border: 1px solid rgba(25, 195, 125, 0.2);
+  background: rgba(25, 195, 125, 0.05);
+  border: 1px solid rgba(25, 195, 125, 0.1);
   border-radius: 12px;
   margin-bottom: 2rem;
   display: flex;
@@ -36,22 +65,20 @@ const NewsWidget = styled.div`
 `;
 
 const NewsLabel = styled.div`
-  background: rgba(21, 23, 30, 0.5);
-  color: var(--primary);
-  padding: 0.8rem 1.5rem;
-  font-size: 0.9rem;
+  background: rgba(25, 195, 125, 0.1);
+  color: #19c37d;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(25, 195, 125, 0.1);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  z-index: 2;
 `;
 
 const NewsMarquee = styled.div`
-  padding: 0.8rem 0;
+  padding: 0.6rem 0;
   white-space: nowrap;
   overflow: hidden;
   position: relative;
@@ -67,473 +94,536 @@ const NewsMarquee = styled.div`
     display: inline-block;
     color: var(--text-secondary);
     margin-right: 50px;
-    font-size: 0.95rem;
-  }
-
-  &:hover .ticker-track {
-    animation-play-state: paused;
+    font-size: 0.9rem;
   }
 `;
 
-const WelcomeBanner = styled.div`
-  background: linear-gradient(135deg, #6c5dd3 0%, #8f85f2 100%);
-  padding: 3rem;
-  border-radius: 20px;
-  margin-bottom: 3rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(108, 93, 211, 0.3);
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    filter: blur(50px);
-  }
-
-  h1 {
-    font-size: 2.5rem;
-    margin: 0 0 10px 0;
-    font-weight: 700;
-  }
-
-  p {
-    font-size: 1.1rem;
-    margin: 0;
-    opacity: 0.9;
-  }
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
-  color: #fff;
-  font-weight: 700;
+const WelcomeHeader = styled.div`
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
   
-  span {
-    font-size: 0.8rem;
-    background: rgba(108, 93, 211, 0.2);
-    color: var(--primary);
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  .welcome-text {
+    h1 {
+      font-size: 2.2rem;
+      margin: 0;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #a0a3bd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      margin: 0.5rem 0 0;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+  }
+
+  .user-badge {
+    text-align: right;
+    .role {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      background: rgba(108, 93, 211, 0.1);
+      color: var(--primary);
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+    .last-login {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
   }
 `;
 
-const SectionDesc = styled.p`
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-`;
-
-const CategorySection = styled.div`
-  margin-bottom: 4rem;
-  animation: ${fadeIn} 0.8s ease-out;
-`;
-
-const CategoryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-`;
-
-const ActionCard = styled(Link)`
+const Widget = styled.div `
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 24px;
   padding: 1.5rem;
-  text-decoration: none;
-  color: white;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+`;
+
+const WidgetTitle = styled.h3`
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(108, 93, 211, 0.1) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.3s;
+  gap: 0.7rem;
+  color: #fff;
+  
+  svg {
+    color: var(--primary);
   }
+`;
+
+const QuickActionsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+`;
+
+const ActionBtn = styled(Link)`
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.2rem;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-5px) scale(1.02);
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(108, 93, 211, 0.3);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    background: rgba(108, 93, 211, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-3px);
     
-    &::before { opacity: 1; }
-    .icon-box { transform: rotate(10deg); background: var(--primary); color: white; }
-    .arrow { transform: translateX(5px); opacity: 1; }
+    .icon-wrap {
+      background: var(--primary);
+      color: #fff;
+    }
   }
 
-  .icon-box {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 18px;
+  .icon-wrap {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
     color: var(--primary);
     transition: all 0.3s;
+  }
+
+  span {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+`;
+
+const ActivityItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
   }
 
   .content {
     flex: 1;
-    h3 {
-      font-size: 1.15rem;
-      margin: 0 0 0.3rem 0;
-      color: #fff;
-      font-weight: 600;
-    }
-    p {
-      margin: 0;
+    .feature {
+      display: block;
       font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .time {
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      line-height: 1.4;
+      opacity: 0.6;
     }
   }
 
-  .arrow {
-    font-size: 0.9rem;
-    color: var(--primary);
-    opacity: 0.3;
-    transition: all 0.3s;
+  .status {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    background: rgba(25, 195, 125, 0.1);
+    color: #19c37d;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 800;
   }
 `;
 
-const TestimonialCard = styled.div`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
-  border-radius: 16px;
-  position: relative;
-  
-  &::before {
-    content: '"';
-    position: absolute;
-    top: -10px;
-    left: 20px;
-    font-size: 4rem;
+const ResumeCard = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.2rem;
+  background: linear-gradient(90deg, rgba(108, 93, 211, 0.15) 0%, rgba(25, 195, 125, 0.05) 100%);
+  border: 1px solid rgba(108, 93, 211, 0.2);
+  border-radius: 18px;
+  text-decoration: none;
+  color: #fff;
+  margin-top: 1rem;
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateX(5px);
+    border-color: var(--primary);
+  }
+
+  .play-icon {
+    font-size: 1.8rem;
     color: var(--primary);
-    opacity: 0.3;
-    font-family: serif;
   }
 
-  p {
-    font-style: italic;
+  .info {
+    flex: 1;
+    h4 { margin: 0; font-size: 0.95rem; }
+    p { margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--text-secondary); }
+  }
+`;
+
+const StatGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+`;
+
+const MiniStat = styled.div`
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1rem;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+
+  .val {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .lab {
+    font-size: 0.7rem;
     color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-    position: relative;
-    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.2rem;
+  }
+`;
+
+const InsightCard = styled.div`
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #fff;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 
-  .author {
+  .meta {
+    margin-top: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--primary);
+  }
+`;
+
+const RecommendationWidget = styled(Widget)`
+  background: linear-gradient(135deg, rgba(108, 93, 211, 0.1) 0%, rgba(25, 195, 125, 0.05) 100%);
+  border: 1px solid rgba(108, 93, 211, 0.2);
+`;
+
+const RecItem = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  
+  .num {
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(45deg, #6c5dd3, #8f85f2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    div {
-      h5 { margin: 0; color: white; }
-      span { font-size: 0.8rem; color: var(--text-secondary); }
-    }
-  }
-`;
-
-const CarouselContainer = styled.div`
-  overflow: hidden;
-  position: relative;
-  max-width: 800px;
-  margin: 0 auto 3rem;
-  
-  .indicators {
-    display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      cursor: pointer;
-      transition: all 0.3s;
-
-      &.active {
-        background: var(--primary);
-        transform: scale(1.2);
-      }
-    }
+    font-size: 0.75rem;
+    font-weight: 800;
+    flex-shrink: 0;
   }
-`;
-
-const CarouselTrack = styled.div`
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-  width: 100%;
-`;
-
-const TestimonialSlide = styled.div`
-  min-width: 100%;
-  padding: 0 1rem;
+  
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+  }
 `;
 
 const DashboardHome = () => {
-  const { user } = useAuth();
-  const userName = user?.name || 'User';
+    const { user } = useAuth();
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-  const newsItems = [
-    "New IPC Amendment (2024) Passed - Key changes in Section 377",
-    "Supreme Court Guidelines on Digital Privacy & Data Protection",
-    "Bar Council of India announces new registration norms for 2025",
-    "AI Regulation Bill proposed in upcoming parliament session",
-    "Landmark judgment on Property Rights for Daughters summarized"
-  ];
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await api.get('/api/dashboard/stats');
+                setStats(res.data.data);
+            } catch (err) {
+                console.error('Failed to fetch dashboard stats', err);
+                toast.error('Failed to load personalized dashboard');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
 
-  const testimonials = [
-    {
-      text: "Lawyer.AI has completely transformed how I research cases. The IPC dictionary is a lifesaver!",
-      name: "Adv. Rajesh Kumar",
-      role: "Criminal Lawyer"
-    },
-    {
-      text: "The AI assistant is accurate and surprisingly nuanced. It saves me hours of drafting time.",
-      name: "Sriya Patel",
-      role: "Law Student"
-    },
-    {
-      text: "Finally, a platform that connects civilians with lawyers seamlessly. The courtroom feature is brilliant.",
-      name: "Amit Verma",
-      role: "Civilian User"
-    }
-  ];
+    const recommendations = {
+        civilian: [
+            "Use 'Legal AI Chat' to understand your basic rights regarding property disputes.",
+            "Check the IPC Dictionary to learn about cybercrime laws in India.",
+            "Analyze your rental agreement using our 'Document Analyzer' before signing."
+        ],
+        law_student: [
+            "Practice a 'Beginner' level Moot Court trial to improve your courtroom presence.",
+            "Use the 'Strategy Generator' to build a defense for our weekly mock case.",
+            "Read recent legal blogs to stay updated on Supreme Court landmark judgments."
+        ],
+        lawyer: [
+            "Write a blog post about the new Digital Personal Data Protection Act to increase your reach.",
+            "Use 'Strategy Generator' for complex litigation planning and precedent search.",
+            "Simulate a high-stakes cross-examination in the 'Moot Court Simulator'."
+        ]
+    };
 
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+    const currentRecs = recommendations[user?.role] || recommendations.civilian;
 
-  // Auto-slide effect
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
+    const newsItems = [
+        "New IPC Amendment (2024) Passed - Key changes in Section 377",
+        "Supreme Court Guidelines on Digital Privacy & Data Protection",
+        "Bar Council of India announces new registration norms for 2025",
+        "AI Regulation Bill proposed in upcoming parliament session",
+        "Landmark judgment on Property Rights for Daughters summarized"
+    ];
 
-  return (
-    <Container>
-      {/* News Ticker - Refined for Mobile Stability */}
-      <NewsWidget>
-        <NewsLabel>⚡ LEGAL TRENDING:</NewsLabel>
-        <NewsMarquee>
-          <div className="ticker-track">
-            {newsItems.map((item, i) => (
-              <span key={i}>• {item}</span>
-            ))}
-          </div>
-        </NewsMarquee>
-      </NewsWidget>
-
-      {/* Welcome Banner */}
-      <WelcomeBanner>
-        <h1>Hello, {userName}! 👋</h1>
-        <p>Ready to revolutionize your legal workflow? Your AI assistant is standing by.</p>
-      </WelcomeBanner>
-
-
-      {/* Group 1: AI POWERED TOOLS */}
-      <CategorySection>
-        <SectionTitle>AI Intelligence Hub <span>Smart Tools</span></SectionTitle>
-        <SectionDesc>Automate your legal research and document analysis with cutting-edge AI.</SectionDesc>
-        <CategoryGrid>
-          <ActionCard to="/dashboard/chat">
-            <div className="icon-box"><FaRobot /></div>
-            <div className="content">
-              <h3>Legal AI Assistant</h3>
-              <p>Chat with AI for instant case insights and legal research.</p>
-            </div>
-            <div className="arrow"><FaArrowRight /></div>
-          </ActionCard>
-
-          <ActionCard to="/dashboard/doc-analyzer">
-            <div className="icon-box"><FaScaleUnbalanced /></div>
-            <div className="content">
-              <h3>Document Analyzer</h3>
-              <p>AI-powered extraction of key clauses and legal terminology.</p>
-            </div>
-            <div className="arrow"><FaArrowRight /></div>
-          </ActionCard>
-
-          {/* Outcome Predictor: Lawyers only */}
-          {(user?.role === 'lawyer' || user?.role === 'admin') && (
-            <ActionCard to="/dashboard/outcome-predictor">
-              <div className="icon-box"><FaBrain /></div>
-              <div className="content">
-                <h3>Outcome Predictor</h3>
-                <p>Predict case probabilities based on judicial patterns.</p>
-              </div>
-              <div className="arrow"><FaArrowRight /></div>
-            </ActionCard>
-          )}
-
-          {/* Strategy Generator: Students & Lawyers */}
-          {(user?.role === 'law_student' || user?.role === 'lawyer' || user?.role === 'admin') && (
-            <ActionCard to="/dashboard/strategy-generator">
-              <div className="icon-box"><FaLightbulb /></div>
-              <div className="content">
-                <h3>Strategy Generator</h3>
-                <p>Receive AI-driven tactical advice for your legal scenarios.</p>
-              </div>
-              <div className="arrow"><FaArrowRight /></div>
-            </ActionCard>
-          )}
-        </CategoryGrid>
-      </CategorySection>
-
-      {/* Group 2: LAW & RESEARCH */}
-      <CategorySection>
-        <SectionTitle>Law & Knowledge <span>Research</span></SectionTitle>
-        <SectionDesc>Comprehensive database for Indian laws and landmark judgments.</SectionDesc>
-        <CategoryGrid>
-          <ActionCard to="/dashboard/ipc">
-            <div className="icon-box"><FaBook /></div>
-            <div className="content">
-              <h3>IPC Dictionary</h3>
-              <p>Navigate the Indian Penal Code with simplified explanations.</p>
-            </div>
-            <div className="arrow"><FaArrowRight /></div>
-          </ActionCard>
-
-          <ActionCard to="/dashboard/case-library">
-            <div className="icon-box"><FaScaleUnbalanced /></div>
-            <div className="content">
-              <h3>Open Case Library</h3>
-              <p>Study, share, and discuss landmark court cases in India.</p>
-            </div>
-            <div className="arrow"><FaArrowRight /></div>
-          </ActionCard>
-
-          {/* Blogs: All Roles (Read access) */}
-          {(user?.role === 'lawyer' || user?.role === 'law_student' || user?.role === 'civilian' || user?.role === 'admin') && (
-            <ActionCard to="/dashboard/blog">
-              <div className="icon-box"><FaPenNib /></div>
-              <div className="content">
-                <h3>Legal Insights</h3>
-                <p>Read landmark case studies and professional legal articles.</p>
-              </div>
-              <div className="arrow"><FaArrowRight /></div>
-            </ActionCard>
-          )}
-        </CategoryGrid>
-      </CategorySection>
-
-      {/* Group 3: SIMULATIONS & PRACTICE */}
-      <CategorySection>
-        <SectionTitle>Practice & Simulation <span>Experience</span></SectionTitle>
-        <SectionDesc>Hone your skills in immersive virtual courtroom environments.</SectionDesc>
-        <CategoryGrid>
-          {/* Moot Court: Students & Lawyers only */}
-          {(user?.role === 'lawyer' || user?.role === 'law_student' || user?.role === 'admin') && (
-            <ActionCard to="/dashboard/moot-court">
-              <div className="icon-box"><FaUserGraduate /></div>
-              <div className="content">
-                <h3>Moot Court Simulator</h3>
-                <p>Engage in realistic AI-hosted courtroom trial practice.</p>
-              </div>
-              <div className="arrow"><FaArrowRight /></div>
-            </ActionCard>
-          )}
-
-          {/* Judicial Simulation: Lawyers only */}
-          {(user?.role === 'lawyer' || user?.role === 'admin') && (
-            <ActionCard to="/dashboard/judicial-simulation">
-              <div className="icon-box"><FaScaleBalanced /></div>
-              <div className="content">
-                <h3>Judicial Simulation</h3>
-                <p>Experience the reasoning process of a presiding judge.</p>
-              </div>
-              <div className="arrow"><FaArrowRight /></div>
-            </ActionCard>
-          )}
-
-          {/* Virtual Courtroom: Civilians & Lawyers only */}
-          {(user?.role === 'civilian' || user?.role === 'lawyer' || user?.role === 'admin') && (
-            <ActionCard to="/dashboard/courtroom">
-              <div className="icon-box"><FaGavel /></div>
-              <div className="content">
-                <h3>Virtual Courtroom</h3>
-                <p>Private secure consultation space for legal meetings.</p>
-              </div>
-              <div className="arrow"><FaArrowRight /></div>
-            </ActionCard>
-          )}
-        </CategoryGrid>
-      </CategorySection>
-
-      {/* Testimonials Section */}
-      <SectionTitle>User Testimonials</SectionTitle>
-      <CarouselContainer>
-        <CarouselTrack style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-          {testimonials.map((t, i) => (
-            <TestimonialSlide key={i}>
-              <TestimonialCard>
-                <p>{t.text}</p>
-                <div className="author">
-                  <div className="avatar">{t.name[0]}</div>
-                  <div>
-                    <h5>{t.name}</h5>
-                    <span>{t.role}</span>
-                  </div>
+    if (loading) {
+        return (
+            <Container style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <FaRobot size={40} className="spin" style={{ color: 'var(--primary)', marginBottom: '1rem' }} />
+                    <p style={{ color: 'var(--text-secondary)' }}>Configuring your personalized dashboard...</p>
                 </div>
-              </TestimonialCard>
-            </TestimonialSlide>
-          ))}
-        </CarouselTrack>
-        <div className="indicators">
-          {testimonials.map((_, i) => (
-            <div
-              key={i}
-              className={`dot ${i === currentIndex ? 'active' : ''}`}
-              onClick={() => setCurrentIndex(i)}
-            />
-          ))}
-        </div>
-      </CarouselContainer>
+            </Container>
+        );
+    }
 
-    </Container>
-  );
+    return (
+        <Container>
+            {/* News Ticker */}
+            <NewsWidget>
+                <NewsLabel><FaFire /> Highlights:</NewsLabel>
+                <NewsMarquee>
+                    <div className="ticker-track">
+                        {newsItems.map((item, i) => (
+                            <span key={i}>• {item}</span>
+                        ))}
+                    </div>
+                </NewsMarquee>
+            </NewsWidget>
+
+            {/* Personalized Header */}
+            <WelcomeHeader>
+                <div className="welcome-text">
+                    <h1>Welcome Back, {user?.name.split(' ')[0]}!</h1>
+                    <p>Your legal command center is ready. Here's what's happening today.</p>
+                </div>
+                <div className="user-badge">
+                    <span className="role">{user?.role.replace('_', ' ')}</span>
+                    <span className="last-login">
+                        Last Active: {new Date(stats?.user?.lastLogin || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                </div>
+            </WelcomeHeader>
+
+            <DashboardGrid>
+                <MainContent>
+                    {/* Quick Actions */}
+                    <Widget>
+                        <WidgetTitle><FaCirclePlay /> Quick Actions</WidgetTitle>
+                        <QuickActionsGrid>
+                            <ActionBtn to="/dashboard/chat">
+                                <div className="icon-wrap"><FaRobot /></div>
+                                <span>Start Legal AI Chat</span>
+                            </ActionBtn>
+                            <ActionBtn to="/dashboard/ipc">
+                                <div className="icon-wrap"><FaBook /></div>
+                                <span>Search IPC Dictionary</span>
+                            </ActionBtn>
+                            <ActionBtn to="/dashboard/doc-analyzer">
+                                <div className="icon-wrap"><FaScaleUnbalanced /></div>
+                                <span>Analyze Document</span>
+                            </ActionBtn>
+                            <ActionBtn to="/dashboard/moot-court">
+                                <div className="icon-wrap"><FaUserGraduate /></div>
+                                <span>Moot Court Trial</span>
+                            </ActionBtn>
+                        </QuickActionsGrid>
+                    </Widget>
+
+                    {/* Recommendations */}
+                    <RecommendationWidget>
+                        <WidgetTitle><FaLightbulb /> Recommended for You</WidgetTitle>
+                        {currentRecs.map((rec, i) => (
+                            <RecItem key={i}>
+                                <div className="num">{i + 1}</div>
+                                <p>{rec}</p>
+                            </RecItem>
+                        ))}
+                    </RecommendationWidget>
+
+                    {/* Role-Based Widgets */}
+                    <Widget>
+                        <WidgetTitle><FaChartLine /> My Performance & Stats</WidgetTitle>
+                        <StatGrid>
+                            {user?.role === 'lawyer' && (
+                                <>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.blogCount || 0}</span>
+                                        <span className="lab">Published Blogs</span>
+                                    </MiniStat>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.blogViews || 0}</span>
+                                        <span className="lab">Total Reach</span>
+                                    </MiniStat>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.strategyUsage || 0}</span>
+                                        <span className="lab">Strategies Built</span>
+                                    </MiniStat>
+                                </>
+                            )}
+                            {user?.role === 'law_student' && (
+                                <>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.completedMoots || 0}</span>
+                                        <span className="lab">Trials Done</span>
+                                    </MiniStat>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.averageMootScore || 0}/10</span>
+                                        <span className="lab">Avg Score</span>
+                                    </MiniStat>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.strategyUsage || 0}</span>
+                                        <span className="lab">Strategies Generated</span>
+                                    </MiniStat>
+                                </>
+                            )}
+                            {user?.role === 'civilian' && (
+                                <>
+                                    <MiniStat>
+                                        <span className="val">{stats?.roleStats?.aiHelpUsage || 0}</span>
+                                        <span className="lab">Help Requests</span>
+                                    </MiniStat>
+                                    <MiniStat>
+                                        <span className="val">100%</span>
+                                        <span className="lab">Data Privacy</span>
+                                    </MiniStat>
+                                    <MiniStat>
+                                        <span className="val">AI</span>
+                                        <span className="lab">Status Ready</span>
+                                    </MiniStat>
+                                </>
+                            )}
+                        </StatGrid>
+                    </Widget>
+
+                    {/* Continue Where You Left Off */}
+                    {stats?.resumeActivity && (
+                        <Widget>
+                            <WidgetTitle><FaClock /> Resume Previous Activity</WidgetTitle>
+                            <ResumeCard to="/dashboard/moot-court">
+                                <div className="play-icon"><FaCirclePlay /></div>
+                                <div className="info">
+                                    <h4>{stats.resumeActivity.caseDetails.title}</h4>
+                                    <p>Continue your active Moot Court session • Last active {new Date(stats.resumeActivity.updatedAt).toLocaleDateString()}</p>
+                                </div>
+                                <FaArrowRight style={{ opacity: 0.4 }} />
+                            </ResumeCard>
+                        </Widget>
+                    )}
+                </MainContent>
+
+                <Sidebar>
+                    {/* Recent Activity */}
+                    <Widget>
+                        <WidgetTitle><FaClock /> Recent Activity</WidgetTitle>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {stats?.recentActivity?.length > 0 ? (
+                                stats.recentActivity.map((log, i) => (
+                                    <ActivityItem key={i}>
+                                        <div className="indicator" />
+                                        <div className="content">
+                                            <span className="feature">{log.feature}</span>
+                                            <span className="time">{new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                        </div>
+                                        <div className="status">{log.status}</div>
+                                    </ActivityItem>
+                                ))
+                            ) : (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', padding: '1rem' }}>
+                                    No recent activity found. Start exploring!
+                                </p>
+                            )}
+                        </div>
+                    </Widget>
+
+                    {/* Platform Insights */}
+                    <Widget>
+                        <WidgetTitle><FaNewspaper /> Platform Insights</WidgetTitle>
+                        
+                        <InsightCard>
+                            <h4>Latest Publication</h4>
+                            <p>{stats?.platformInsights?.latestBlog?.title || 'No recent blogs'}</p>
+                            <div className="meta">
+                                <span>Read Insight</span>
+                                <Link to="/dashboard/blog" style={{ color: 'var(--primary)' }}><FaArrowRight size={12} /></Link>
+                            </div>
+                        </InsightCard>
+
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                            <div style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', textAlign: 'center' }}>
+                                <span style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)' }}>{stats?.platformInsights?.totalCases || 0}</span>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Library Cases</span>
+                            </div>
+                            <div style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', textAlign: 'center' }}>
+                                <span style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)' }}>{stats?.platformInsights?.activeMootTrials || 0}</span>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Active Trials</span>
+                            </div>
+                        </div>
+                    </Widget>
+                </Sidebar>
+            </DashboardGrid>
+
+            {/* Existing Sections Re-styled or Moved to categories below if needed */}
+            {/* Keeping it clean as requested, prioritizing new personalized widgets */}
+            
+        </Container>
+    );
 };
 
 export default DashboardHome;

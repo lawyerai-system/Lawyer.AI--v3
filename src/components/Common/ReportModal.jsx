@@ -76,11 +76,11 @@ const FormGroup = styled.div`
   label {
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--text-primary);
+    color: var(--text-main);
   }
 
   select, textarea {
-    background: rgba(255, 255, 255, 0.05);
+    background: #0f111a;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 0.8rem;
@@ -89,6 +89,11 @@ const FormGroup = styled.div`
     font-family: inherit;
 
     &:focus { border-color: #ff5630; }
+    
+    option {
+      background: #1a1d24;
+      color: white;
+    }
   }
 
   textarea {

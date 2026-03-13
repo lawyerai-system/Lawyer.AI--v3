@@ -31,17 +31,12 @@ const float = keyframes`
 
 const PageContainer = styled.div`
   flex: 1;
-  padding: 2rem;
-  background: radial-gradient(circle at top right, rgba(118, 75, 162, 0.1), transparent 40%),
-              radial-gradient(circle at bottom left, rgba(102, 126, 234, 0.15), transparent 40%);
+  width: 100%;
+  padding: 3rem 2rem;
   color: var(--text-main);
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  overflow-y: auto;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
   position: relative;
 
   &::before {

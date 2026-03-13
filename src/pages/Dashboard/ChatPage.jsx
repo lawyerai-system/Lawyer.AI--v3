@@ -24,8 +24,7 @@ const ChatPageLayout = styled.div`
   display: flex;
   flex: 1;
   width: 100%;
-  min-height: calc(100vh - 80px); /* Height spans the screen minus navbar */
-  background: radial-gradient(circle at top right, #1e1e2f, #13141a);
+  height: 100%;
   color: #ececf1;
   position: relative;
 `;
@@ -724,7 +723,7 @@ const ChatPage = () => {
             </SendButton>
           </InputWrapper>
           <Disclaimer>
-            Free Research Preview. Lawyer.AI may produce inaccurate information about people, places, or facts.
+            This AI provides informational legal guidance and should not be treated as professional legal advice.
           </Disclaimer>
         </InputArea>
 

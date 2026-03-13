@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const FooterMain = styled.footer`
@@ -166,7 +166,7 @@ const LandingFooter = () => {
               <li><a onClick={() => handleNav('/about')}>About Us</a></li>
               <li><a onClick={() => handleNav('/features')}>Features</a></li>
               <li><a onClick={() => handleNav('/contact')}>Connect</a></li>
-              <li><a onClick={() => handleNav('/blog')}>Legal Blog</a></li>
+
             </ul>
           </FooterColumn>
 
@@ -183,8 +183,8 @@ const LandingFooter = () => {
           <FooterColumn>
             <h4>Contact</h4>
             <ul style={{ fontSize: '0.85rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Mail size={14} /> support@lawyer.ai</li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Phone size={14} /> +91 94095 59039</li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Mail size={14} /> hetbhalani44@gmail.com</li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><Phone size={14} /> +91 90168 04524 (Kavya)</li>
               <li style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a0a3bd' }}><MapPin size={14} /> Ahmedabad, India</li>
             </ul>
           </FooterColumn>
@@ -195,10 +195,10 @@ const LandingFooter = () => {
             © 2026 Lawyer.AI. Created with ❤️ for Justice.
           </p>
           <SocialLinks>
-            <a href="#"><Facebook size={18} /></a>
-            <a href="#"><Twitter size={18} /></a>
-            <a href="#"><Linkedin size={18} /></a>
-            <a href="#"><Instagram size={18} /></a>
+            <a href="https://github.com/Hetshah1203"><Github size={18} /></a>
+            <a href="https://x.com/KikaniHet"><Twitter size={18} /></a>
+            <a href="https://www.linkedin.com/in/jainam-gajjar-113430281"><Linkedin size={18} /></a>
+            <a href="https://www.instagram.com/hetansh_3012"><Instagram size={18} /></a>
           </SocialLinks>
         </FooterBottom>
       </Container>

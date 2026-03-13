@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaStar, FaComment, FaCalendar, FaBuilding, FaGavel, FaLightbulb, FaUser, FaQuoteLeft, FaPaperPlane, FaArrowLeft, FaTags, FaCircleInfo, FaArrowRight, FaBrain } from 'react-icons/fa6';
+import { FaStar, FaComment, FaCalendar, FaBuilding, FaGavel, FaLightbulb, FaUser, FaQuoteLeft, FaPaperPlane, FaArrowLeft, FaTags, FaCircleInfo, FaArrowRight, FaBrain, FaScaleBalanced } from 'react-icons/fa6';
 import api from '../../../utils/axios';
 import { useAuth } from '../../../context/AuthContext';
 
@@ -319,6 +319,22 @@ const CaseDetails = () => {
             <SectionTitle><FaGavel /> Judgement Outcome</SectionTitle>
             <TextContent>{caseData.judgementOutcome}</TextContent>
           </Card>
+
+          {caseData.impact && (
+            <Card>
+              <SectionTitle><FaLightbulb /> Impact of the Case</SectionTitle>
+              <TextContent>{caseData.impact}</TextContent>
+            </Card>
+          )}
+
+          {caseData.source && (
+            <Card>
+              <SectionTitle><FaCircleInfo /> Source / Citation</SectionTitle>
+              <TextContent style={{ fontFamily: 'monospace', color: 'var(--primary)', background: 'rgba(108, 93, 211, 0.05)', padding: '1rem', borderRadius: '8px' }}>
+                {caseData.source}
+              </TextContent>
+            </Card>
+          )}
 
           <CommentSection>
             <h2>Community Insights ({caseData.comments.length})</h2>

@@ -267,7 +267,7 @@ const getAllCases = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const cases = await Case.find(query)
-            .populate('uploader', 'name email')
+            .populate('uploader', 'name email role')
             .sort({ createdAt: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit));
@@ -297,7 +297,7 @@ const updateCase = async (req, res) => {
         const caseObj = await Case.findByIdAndUpdate(req.params.id, updates, {
             new: true,
             runValidators: true
-        });
+        }).populate('uploader', 'name email role');
 
         if (!caseObj) {
             return res.status(404).json({ status: 'error', message: 'Case not found' });

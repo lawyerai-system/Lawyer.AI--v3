@@ -14,9 +14,7 @@ const spin = keyframes`
 `;
 
 const Container = styled.div`
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   color: white;
   animation: ${fadeIn} 0.8s ease-out;
 `;

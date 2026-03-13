@@ -75,6 +75,14 @@ const caseSchema = new mongoose.Schema({
         type: String,
         trim: true
     }],
+    impact: {
+        type: String,
+        trim: true
+    },
+    source: {
+        type: String,
+        trim: true
+    },
     status: {
         type: String,
         enum: ['PENDING', 'APPROVED', 'REJECTED'],

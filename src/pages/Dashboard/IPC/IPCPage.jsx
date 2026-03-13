@@ -7,15 +7,11 @@ import { FaSearch, FaBook, FaGavel, FaExclamationTriangle } from 'react-icons/fa
 const PageContainer = styled.div`
   flex: 1;
   width: 100%;
-  height: calc(100vh - 80px); /* Height spans the screen minus navbar */
-  padding: 2rem;
-  background: radial-gradient(circle at top right, rgba(118, 75, 162, 0.15), transparent 40%),
-              radial-gradient(circle at bottom left, rgba(102, 126, 234, 0.15), transparent 40%);
+  padding: 3rem 2rem;
   color: var(--text-main);
   display: flex;
   flex-direction: column;
   gap: 3rem;
-  overflow-y: auto; /* Internal scrolling restored */
   user-select: none; /* Prevent text selection */
   -webkit-user-select: none;
   -moz-user-select: none;

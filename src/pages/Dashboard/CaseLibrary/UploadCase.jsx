@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { FaCloudArrowUp, FaGavel, FaScaleBalanced, FaArrowLeft, FaBrain } from 'react-icons/fa6';
+import { FaCloudArrowUp, FaGavel, FaScaleBalanced, FaArrowLeft, FaBrain, FaFileLines, FaLink } from 'react-icons/fa6';
 import api from '../../../utils/axios';
+import toast from 'react-hot-toast';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -81,7 +82,7 @@ const FormGroup = styled.div`
     }
   }
 
-  textarea { min-height: 150px; resize: vertical; }
+  textarea { min-height: 120px; resize: vertical; }
 `;
 
 const Grid = styled.div`
@@ -150,7 +151,8 @@ const UploadCase = () => {
         ipcSections: '',
         summary: '',
         judgementOutcome: '',
-        keyArguments: '',
+        impact: '',
+        source: '',
         tags: ''
     });
 
@@ -166,15 +168,19 @@ const UploadCase = () => {
             const refinedData = {
                 ...formData,
                 ipcSections: formData.ipcSections.split(',').map(s => s.trim()).filter(s => s),
-                keyArguments: formData.keyArguments.split('\n').map(s => s.trim()).filter(s => s),
                 tags: formData.tags.split(',').map(s => s.trim()).filter(s => s)
             };
 
             setError(null);
-            await api.post('/api/cases', refinedData);
-            navigate('/dashboard/case-library');
+            const response = await api.post('/api/cases', refinedData);
+            if (response.data.status === 'success') {
+                toast.success('Case submitted successfully! It is now pending review.');
+                navigate('/dashboard/case-library');
+            }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to upload case. Please check all fields.');
+            const msg = err.response?.data?.message || 'Failed to upload case. Please check all fields.';
+            setError(msg);
+            toast.error(msg);
         } finally {
             setLoading(false);
         }
@@ -222,7 +228,7 @@ const UploadCase = () => {
                             />
                         </FormGroup>
                         <FormGroup>
-                            <label>Legal Topic</label>
+                            <label>Legal Area</label>
                             <select name="legalTopic" value={formData.legalTopic} onChange={handleChange}>
                                 <option value="Criminal">Criminal Law</option>
                                 <option value="Civil">Civil Law</option>
@@ -269,24 +275,32 @@ const UploadCase = () => {
                     </FormGroup>
 
                     <FormGroup>
-                        <label>Key Legal Arguments (One per line)</label>
+                        <label>Judgment Summary</label>
                         <textarea
-                            name="keyArguments"
-                            placeholder="What were the main points argued by both sides?"
-                            style={{ minHeight: '100px' }}
-                            value={formData.keyArguments}
+                            name="judgementOutcome"
+                            required
+                            placeholder="What did the court decide?"
+                            value={formData.judgementOutcome}
                             onChange={handleChange}
                         />
                     </FormGroup>
 
                     <FormGroup>
-                        <label>Judgement Outcome</label>
+                        <label>Impact of the Case</label>
                         <textarea
-                            name="judgementOutcome"
-                            required
-                            placeholder="What did the court decide?"
-                            style={{ minHeight: '100px' }}
-                            value={formData.judgementOutcome}
+                            name="impact"
+                            placeholder="How did this case change the legal landscape?"
+                            value={formData.impact}
+                            onChange={handleChange}
+                        />
+                    </FormGroup>
+
+                    <FormGroup>
+                        <label>Source or Reference</label>
+                        <input
+                            name="source"
+                            placeholder="e.g. AIR 2018 SC 4321, or a website link"
+                            value={formData.source}
                             onChange={handleChange}
                         />
                     </FormGroup>
@@ -308,7 +322,7 @@ const UploadCase = () => {
                     )}
 
                     <SubmitBtn type="submit" disabled={loading}>
-                        {loading ? 'Processing...' : 'Share with Community'}
+                        {loading ? 'Processing...' : 'Share Case with Community'}
                         {!loading && <FaCloudArrowUp />}
                     </SubmitBtn>
                 </form>

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaBars, FaXmark, FaRightFromBracket, FaUser, FaChevronDown, FaFileLines, FaBrain, FaGavel, FaScaleBalanced, FaMicrochip } from 'react-icons/fa6';
+import { FaBars, FaXmark, FaRightFromBracket, FaUser, FaChevronDown, FaFileLines, FaBrain, FaGavel, FaScaleBalanced, FaMicrochip, FaListCheck } from 'react-icons/fa6';
 import { useSettings } from '../../context/SettingsContext';
 
 const NavContainer = styled.nav`
@@ -227,16 +227,10 @@ const Overlay = styled.div`
 
 const ToolsDropdownWrapper = styled.div`
   position: relative;
-  
-  &:hover .tools-dropdown {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
-  }
 `;
 
 const DropdownLabel = styled.div`
-  color: #94a3b8;
+  color: ${props => props.$isOpen ? 'white' : '#94a3b8'};
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -244,24 +238,29 @@ const DropdownLabel = styled.div`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.8rem;
-  transition: color 0.3s;
+  transition: all 0.3s;
+  background: ${props => props.$isOpen ? 'rgba(255, 255, 255, 0.05)' : 'transparent'};
+  border-radius: 8px;
 
-  &:hover { color: white; }
+  &:hover { 
+    color: white; 
+    background: rgba(255, 255, 255, 0.03);
+  }
 `;
 
 const ToolsPanel = styled.div`
   position: absolute;
-  top: 130%;
+  top: calc(100% + 15px);
   left: 50%;
-  transform: translateX(-50%) translateY(10px);
+  transform: translateX(-50%) translateY(${props => props.$isOpen ? '0' : '10px'});
   background: #1a1d2d;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 1rem;
   min-width: 280px;
   box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-  opacity: 0;
-  pointer-events: none;
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  pointer-events: ${props => props.$isOpen ? 'all' : 'none'};
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 2000;
   display: flex;
@@ -411,6 +410,18 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const toolsRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (toolsRef.current && !toolsRef.current.contains(event.target)) {
+        setIsToolsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -482,13 +493,21 @@ const Navbar = () => {
           <StyledLink to={resolvePath('/case-library')}>Library</StyledLink>
           <StyledLink to={resolvePath('/ipc')}>IPC</StyledLink>
 
-          <ToolsDropdownWrapper>
-            <DropdownLabel>Tools <FaChevronDown size={10} /></DropdownLabel>
-            <ToolsPanel className="tools-dropdown">
+          <ToolsDropdownWrapper ref={toolsRef}>
+            <DropdownLabel $isOpen={isToolsOpen} onClick={() => setIsToolsOpen(!isToolsOpen)}>
+              Tools <FaChevronDown size={10} style={{ transform: isToolsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }} />
+            </DropdownLabel>
+            <ToolsPanel $isOpen={isToolsOpen} className="tools-dropdown">
               {isFeatureEnabled('docAnalyzer') && (
-                <ToolItemLink to={resolvePath('/doc-analyzer')}>
+                <ToolItemLink to={resolvePath('/doc-analyzer')} onClick={() => setIsToolsOpen(false)}>
                   <div className="icon-wrap"><FaFileLines /></div>
                   <div className="text-wrap"><span>Doc Analyzer</span><small>Extract clauses via AI</small></div>
+                </ToolItemLink>
+              )}
+              {isFeatureEnabled('caseBuilder') && (
+                <ToolItemLink to={resolvePath('/case-builder')} onClick={() => setIsToolsOpen(false)}>
+                  <div className="icon-wrap"><FaListCheck /></div>
+                  <div className="text-wrap"><span>Case Builder</span><small>Structured legal analysis</small></div>
                 </ToolItemLink>
               )}
 
@@ -496,13 +515,13 @@ const Navbar = () => {
               {(user?.role === 'law_student' || user?.role === 'lawyer' || user?.role === 'admin') && (
                 <>
                   {isFeatureEnabled('strategyGenerator') && (
-                    <ToolItemLink to={resolvePath('/strategy-generator')}>
+                    <ToolItemLink to={resolvePath('/strategy-generator')} onClick={() => setIsToolsOpen(false)}>
                       <div className="icon-wrap"><FaBrain /></div>
                       <div className="text-wrap"><span>Strategy Gen</span><small>Tactical case advice</small></div>
                     </ToolItemLink>
                   )}
                   {isFeatureEnabled('mootCourt') && (
-                    <ToolItemLink to={resolvePath('/moot-court')}>
+                    <ToolItemLink to={resolvePath('/moot-court')} onClick={() => setIsToolsOpen(false)}>
                       <div className="icon-wrap"><FaScaleBalanced /></div>
                       <div className="text-wrap"><span>Moot Court</span><small>Virtual trial practice</small></div>
                     </ToolItemLink>
@@ -514,13 +533,13 @@ const Navbar = () => {
               {(user?.role === 'lawyer' || user?.role === 'admin') && (
                 <>
                   {isFeatureEnabled('outcomePredictor') && (
-                    <ToolItemLink to={resolvePath('/outcome-predictor')}>
+                    <ToolItemLink to={resolvePath('/outcome-predictor')} onClick={() => setIsToolsOpen(false)}>
                       <div className="icon-wrap"><FaGavel /></div>
                       <div className="text-wrap"><span>Predictor</span><small>Success probability</small></div>
                     </ToolItemLink>
                   )}
                   {isFeatureEnabled('judicialSimulation') && (
-                    <ToolItemLink to={resolvePath('/judicial-simulation')}>
+                    <ToolItemLink to={resolvePath('/judicial-simulation')} onClick={() => setIsToolsOpen(false)}>
                       <div className="icon-wrap"><FaMicrochip /></div>
                       <div className="text-wrap"><span>Simulation</span><small>Judge's perspective</small></div>
                     </ToolItemLink>
@@ -581,6 +600,7 @@ const Navbar = () => {
             <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '800', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Legal Tools</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <StyledLink to={resolvePath('/doc-analyzer')} onClick={() => setIsMobileOpen(false)}>Analyze Doc</StyledLink>
+              <StyledLink to={resolvePath('/case-builder')} onClick={() => setIsMobileOpen(false)}>Case Builder</StyledLink>
               {/* Strategy & Moot: Students & Lawyers */}
               {(user?.role === 'law_student' || user?.role === 'lawyer' || user?.role === 'admin') && (
                 <>

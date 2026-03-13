@@ -13,6 +13,7 @@ const getAIInsights = async (caseData) => {
         IPC Sections: ${caseData.ipcSections.join(', ')}
         Raw Summary: ${caseData.summary}
         Judgement: ${caseData.judgementOutcome}
+        Legal Impact: ${caseData.impact}
 
         Please provide professional legal insights in ONLY this JSON format:
         {
@@ -47,11 +48,11 @@ const getAIInsights = async (caseData) => {
 
 exports.createCase = async (req, res) => {
     try {
-        const { title, year, court, legalTopic, ipcSections, summary, judgementOutcome, keyArguments, tags } = req.body;
+        const { title, year, court, legalTopic, ipcSections, summary, judgementOutcome, keyArguments, tags, impact, source } = req.body;
         const userId = req.user.id;
 
         // Get AI insights
-        const aiInsights = await getAIInsights({ title, court, legalTopic, ipcSections, summary, judgementOutcome });
+        const aiInsights = await getAIInsights({ title, court, legalTopic, ipcSections, summary, judgementOutcome, impact });
 
         const newCase = await Case.create({
             title,
@@ -62,11 +63,14 @@ exports.createCase = async (req, res) => {
             summary,
             judgementOutcome,
             keyArguments,
+            impact,
+            source,
             uploader: userId,
             tags: [...new Set([...(tags || []), ...(aiInsights.tags || [])])], // Merge user and AI tags
             aiSummary: aiInsights.aiSummary,
             importantPrinciples: aiInsights.importantPrinciples,
-            suggestedReferences: aiInsights.suggestedReferences
+            suggestedReferences: aiInsights.suggestedReferences,
+            status: req.user.role === 'admin' ? 'APPROVED' : 'PENDING'
         });
 
         res.status(201).json({
@@ -89,6 +93,15 @@ exports.getAllCases = async (req, res) => {
         if (topic) query.legalTopic = topic;
         if (court) query.court = court;
         if (year) query.year = year;
+
+        // Status filtering: Only show APPROVED cases to public. 
+        // Admin sees all. Uploader sees their PENDING cases.
+        if (req.user.role !== 'admin') {
+            query.$or = [
+                { status: 'APPROVED' },
+                { uploader: req.user.id }
+            ];
+        }
 
         const cases = await Case.find(query)
             .sort({ createdAt: -1 })

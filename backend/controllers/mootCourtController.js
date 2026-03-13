@@ -216,3 +216,91 @@ exports.endSession = async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Failed to evaluate session: ' + err.message });
     }
 };
+
+exports.getUserHistory = async (req, res) => {
+    try {
+        const history = await MootCourtSession.find({ 
+            userId: req.user.id, 
+            status: 'completed' 
+        })
+        .select('caseDetails.title role difficulty createdAt evaluation.score')
+        .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            status: 'success',
+            results: history.length,
+            data: history
+        });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+};
+
+exports.getSession = async (req, res) => {
+    try {
+        const session = await MootCourtSession.findOne({ 
+            _id: req.params.id, 
+            userId: req.user.id 
+        });
+
+        if (!session) {
+            return res.status(404).json({ status: 'fail', message: 'Session not found.' });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: session
+        });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+};
+
+exports.analyzePerformance = async (req, res) => {
+    const startTime = Date.now();
+    try {
+        const history = await MootCourtSession.find({ 
+            userId: req.user.id, 
+            status: 'completed' 
+        })
+        .sort({ createdAt: -1 })
+        .limit(5);
+
+        if (history.length === 0) {
+            return res.status(400).json({ status: 'fail', message: 'No completed trials found to analyze.' });
+        }
+
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+        const historySummary = history.map(h => {
+            return `Case: ${h.caseDetails.title}, Role: ${h.role}, Score: ${h.evaluation.score}/100\nFeedback: ${h.evaluation.suggestions}`;
+        }).join('\n\n');
+
+        const prompt = `Analyze the following trial history for a law student/lawyer and provide a comprehensive cross-session performance analysis and strategic improvement plan.
+        
+        Trial History:
+        ${historySummary}
+
+        Focus on:
+        1. Recurring strengths in their legal arguments.
+        2. Persistent weaknesses or logical gaps across different cases.
+        3. Strategic advice on how to improve their cross-examination and IPC application.
+        4. A personalized learning roadmap.
+
+        Provide the analysis in a professional legal mentor tone.`;
+
+        const result = await model.generateContent(prompt);
+        const analysis = result.response.text();
+
+        await logAIUsage('Moot Court Analytics', req.user.id, startTime, true);
+
+        res.status(200).json({
+            status: 'success',
+            data: analysis
+        });
+    } catch (err) {
+        await logAIUsage('Moot Court Analytics', req.user.id, startTime, false, err.message);
+        res.status(500).json({ status: 'error', message: 'Failed to generate analysis: ' + err.message });
+    }
+};

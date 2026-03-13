@@ -38,14 +38,21 @@ const DashboardLayout = () => {
 
   // These pages should span the full width of the screen without container constraints
   const isFullWidthPage = [
-    '/dashboard/chat',
-    '/dashboard/courtroom',
-    '/dashboard/ipc',
-    '/dashboard/ai-chat',
-    '/dashboard/doc-analyzer',
-    '/dashboard/strategy-generator',
-    '/dashboard/moot-court'
-  ].some(path => location.pathname.startsWith(path));
+    '/chat',
+    '/courtroom',
+    '/ipc',
+    '/ai-chat',
+    '/doc-analyzer',
+    '/strategy-generator',
+    '/moot-court',
+    '/outcome-predictor',
+    '/judicial-simulation',
+    '/case-builder'
+  ].some(path => {
+    // Check if current path ends with this subpath or contains it after role prefix
+    return location.pathname.endsWith(path) || 
+           location.pathname.includes(`${path}/`);
+  });
 
   return (
     <LayoutContainer $isFull={isFullWidthPage}>

@@ -3,6 +3,11 @@ import styled from 'styled-components';
 import LogoPanel from '../../components/Branding/LogoPanel';
 import LoginForm from '../../components/Auth/LoginForm';
 import SignupForm from '../../components/Auth/SignupForm';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa6';
+import { auth, googleProvider } from '../../config/firebase';
+import { signInWithPopup } from 'firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const PageContainer = styled.div`
   width: 100vw;
@@ -36,6 +41,39 @@ const FormSection = styled.div`
     max-height: none;    /* Allow full height expansion */
     padding: 1rem;
     flex: none;          /* Let content dictate height */
+  }
+`;
+
+const BackButton = styled(Link)`
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  &:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(-5px);
+  }
+
+  @media (max-width: 768px) {
+    top: 1rem;
+    left: 1rem;
+    position: relative;
+    align-self: flex-start;
+    margin-bottom: 1rem;
   }
 `;
 
@@ -144,11 +182,6 @@ const GoogleButton = styled.button`
   }
 `;
 
-import { auth, googleProvider } from '../../config/firebase';
-import { signInWithPopup } from 'firebase/auth';
-
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 
 const LoginSignupPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -186,6 +219,9 @@ const LoginSignupPage = () => {
     <PageContainer>
       <LogoPanel />
       <FormSection>
+        <BackButton to="/">
+          <FaArrowLeft size={14} /> Back to Home
+        </BackButton>
         <FormCard>
           <ToggleContainer>
             <ToggleBtn $active={isLogin} onClick={() => { setIsLogin(true); setError(null); }}>Login</ToggleBtn>
@@ -205,7 +241,7 @@ const LoginSignupPage = () => {
             </>
           ) : (
             <>
-              <h2 style={{ margin: '0 0 1rem 0' }}>Join LawAI</h2>
+              <h2 style={{ margin: '0 0 1rem 0' }}>Join Lawyer.AI</h2>
               <SignupForm switchToLogin={() => setIsLogin(true)} />
             </>
           )}

@@ -10,9 +10,7 @@ const fadeIn = keyframes`
 `;
 
 const Container = styled.div`
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   color: white;
   animation: ${fadeIn} 0.8s ease-out;
 `;
@@ -257,8 +255,8 @@ const CaseLibrary = () => {
           <h1>Open Case Library</h1>
           <p>India's collaborative legal research database.</p>
         </div>
-        <UploadButton to="/dashboard/case-library/upload">
-          <FaPlus /> Share a Case
+        <UploadButton to="upload">
+          <FaPlus /> Contribute a Case
         </UploadButton>
       </Header>
 
@@ -291,8 +289,15 @@ const CaseLibrary = () => {
       ) : (
         <CaseGrid>
           {cases.map(item => (
-            <CaseCard key={item._id} to={`/dashboard/case-library/${item._id}`}>
-              <CaseBadge>{item.legalTopic}</CaseBadge>
+            <CaseCard key={item._id} to={item._id}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <CaseBadge>{item.legalTopic}</CaseBadge>
+                {item.status === 'PENDING' && (
+                  <span style={{ background: 'rgba(255, 185, 0, 0.1)', color: '#ffb900', fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 'bold' }}>
+                    PENDING REVIEW
+                  </span>
+                )}
+              </div>
               <CaseTitle>{item.title}</CaseTitle>
               <CaseMeta>
                 <span><FaCalendar /> {item.year}</span>

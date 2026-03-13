@@ -93,7 +93,7 @@ const LandingNav = () => {
           <div style={{ display: 'flex', gap: '2rem' }}>
             <NavLink onClick={() => navigate('/features')}>Features</NavLink>
             <NavLink onClick={() => navigate('/about')}>About</NavLink>
-            <NavLink onClick={() => navigate('/blog')}>Blog</NavLink>
+
             <NavLink onClick={() => navigate('/contact')}>Contact</NavLink>
           </div>
           {user ? (

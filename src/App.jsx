@@ -8,7 +8,7 @@ import DashboardHome from './pages/Dashboard/DashboardHome';
 import FeaturesPage from './pages/Dashboard/FeaturesPage';
 import AboutPage from './pages/Dashboard/AboutPage';
 import ContactPage from './pages/Dashboard/ContactPage';
-import LegalBlogPage from './pages/Public/LegalBlogPage';
+
 import DocumentationPage from './pages/Public/DocumentationPage';
 import HelpCenterPage from './pages/Public/HelpCenterPage';
 import TermsPage from './pages/Public/TermsPage';
@@ -29,6 +29,7 @@ import UploadCase from './pages/Dashboard/CaseLibrary/UploadCase';
 import CaseDetails from './pages/Dashboard/CaseLibrary/CaseDetails';
 import CasePredictor from './pages/Dashboard/Predictor/CasePredictor';
 import CourtSimulation from './pages/Dashboard/Simulation/CourtSimulation';
+import AICaseBuilder from './pages/Dashboard/Builder/AICaseBuilder';
 import AdminLayout from './components/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
@@ -67,7 +68,7 @@ function App() {
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/blog" element={<LegalBlogPage />} />
+
         <Route path="/docs" element={<DocumentationPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
         <Route path="/terms" element={<TermsPage />} />
@@ -104,6 +105,7 @@ function App() {
           <Route path="case-library/:id" element={<CaseDetails />} />
           <Route path="outcome-predictor" element={<CasePredictor />} />
           <Route path="judicial-simulation" element={<CourtSimulation />} />
+          <Route path="case-builder" element={<AICaseBuilder />} />
         </Route>
 
         {/* Student Dashboard */}
@@ -127,7 +129,9 @@ function App() {
           <Route path="strategy-generator" element={<LegalStrategyGenerator />} />
           <Route path="moot-court" element={<MootCourtSimulator />} />
           <Route path="case-library" element={<CaseLibrary />} />
+          <Route path="case-library/upload" element={<UploadCase />} />
           <Route path="case-library/:id" element={<CaseDetails />} />
+          <Route path="case-builder" element={<AICaseBuilder />} />
         </Route>
 
         {/* Civilian Dashboard */}
@@ -150,7 +154,9 @@ function App() {
           <Route path="ipc" element={<IPCPage />} />
           <Route path="doc-analyzer" element={<DocumentAnalyzer />} />
           <Route path="case-library" element={<CaseLibrary />} />
+          <Route path="case-library/upload" element={<UploadCase />} />
           <Route path="case-library/:id" element={<CaseDetails />} />
+          <Route path="case-builder" element={<AICaseBuilder />} />
         </Route>
 
         <Route path="/admin" element={

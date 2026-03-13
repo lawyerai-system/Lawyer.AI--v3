@@ -10,7 +10,9 @@ const aiLogSchema = new mongoose.Schema({
             'Strategy Generator', 
             'Moot Court Simulator', 
             'Case Outcome Predictor', 
-            'AI Court Simulation'
+            'AI Court Simulation',
+            'Case Builder',
+            'IPC Search'
         ]
     },
     userId: {

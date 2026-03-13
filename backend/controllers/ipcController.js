@@ -1,5 +1,6 @@
 const { findIPC } = require('../services/ipcService');
 const IPC = require('../models/IPC');
+const logAIUsage = require('../utils/aiLogger');
 
 // @desc    Search IPC sections
 // @route   GET /api/ipc/search
@@ -12,6 +13,11 @@ const searchIPCController = async (req, res) => {
 
         console.log(`[IPC Controller] Received search - Query: "${query || ''}", Filters:`, filters);
         const results = await findIPC(query, filters);
+        
+        // Log activity if user is logged in
+        if (req.user) {
+            await logAIUsage('IPC Search', req.user._id, Date.now(), true);
+        }
 
         console.log(`[IPC Controller] Results found: ${results.length}`);
 

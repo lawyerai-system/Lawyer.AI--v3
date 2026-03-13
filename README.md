@@ -1,47 +1,46 @@
-# ⚖️ LAWYER.AI - Premium 3D Judicial Platform
+# ⚖️ LAWYER.AI - Premium AI Judicial Platform
 
-Welcome to the **3D-Lawyer.AI** project. This is an advanced legal document analysis, strategy generation, and moot court simulation platform powered by 3D visuals and Gemini AI.
+Welcome to **Lawyer.AI**, an advanced legal ecosystem designed for citizens, law students, and legal professionals. This platform leverages the power of Artificial Intelligence and high-end 3D visualizations to transform how legal tasks are handled.
 
 ---
 
+## 🌟 Vision
+Lawyer.AI aims to democratize legal access through technology, providing tools for document analysis, moot court practice, and strategic legal planning.
+
 ## 🚀 Getting Started
 
-If you have just cloned this project or received a new update from your teammate, follow these steps to get everything running locally.
+Follow these steps to set up the project on your local machine.
 
-### 1. 📥 Install Missing Dependencies
-First, you need to install the required libraries for both the frontend (client) and the backend (server).
+### 1. 📥 Install Dependencies
+The project uses a consolidated root structure with a React frontend and a Node.js/Express backend.
 
-#### For the Frontend:
-1. Open a terminal in the project root directory (`Version 2`).
-2. Run the following command:
+#### For the Entire Application (Root):
+1. Open a terminal in the project root directory.
+2. Run the following command to install frontend dependencies:
    ```bash
    npm install
    ```
 
 #### For the Backend:
-1. Navigate to the backend folder:
+1. Navigate to the backend directory:
    ```bash
    cd backend
    ```
-2. Run the following command:
+2. Run the following command to install backend dependencies:
    ```bash
    npm install
    ```
 
 ---
 
-## 🔐 Environment Variables (.env)
+## 🔐 Configuration (.env)
 
-The application requires several API keys and configuration strings to function (Database, AI Analysis, Emailing). These are stored in an `.env` file for security.
+The application requires various environment variables to function correctly (Database, Gemini AI, Email services).
 
-### 📍 Where to store the .env file?
-You must place your `.env` file inside the **`backend`** folder.
+### 📍 Setup
+Create an `.env` file inside the **`backend`** directory.
 
-**Correct Path:** `D:\Projects\Lawyer.AI\Version 2\backend\.env`
-
-### 📋 Required .env Content
-Ask your teammate for the values or replace them with your own. Your `.env` should look like this:
-
+### 📋 Required Content Template
 ```env
 PORT=5000
 MONGODB_URI=your_mongodb_connection_string
@@ -55,33 +54,34 @@ ACCESS_TOKEN_SECRET=your_access_token_secret
 ```
 
 > [!IMPORTANT]
-> Never share your `.env` file publicly or commit it to GitHub. It is already added to `.gitignore`.
+> Never commit your `.env` file to a public repository. It is ignored by default in our `.gitignore`.
 
 ---
 
-## 🛠️ How to Run the App
+## 🛠️ Running the Application
 
-Once dependencies are installed and the `.env` file is in place, you can start the platform.
+You can start both the frontend and backend simultaneously from the root directory.
 
-### Running both Client & Server (Easiest)
-From the **root directory** (`Version 2`), run:
+### Development Mode
+From the **root directory**, run:
 ```bash
 npm run dev
 ```
-- **Frontend** will be available at: `http://localhost:5173`
-- **Backend API** will be available at: `http://localhost:5000`
+- **Frontend**: available at `http://localhost:5173`
+- **Backend API**: available at `http://localhost:5000`
 
 ---
 
-## ✨ Features Checklist
-- [x] **AI Document Analyzer**: Fixes for PDF parsing and modern UI transitions.
-- [x] **Open Case Library**: Centered UI with aligned category filters.
-- [x] **Moot Court Simulator**: Robust layout to prevent freezing.
-- [x] **Legal Strategy Generator**: Strategic planning powered by Gemini.
-- [x] **Outcome Predictor**: AI-driven case probability analysis.
+## ✨ Core Features
+- 🤖 **Legal AI Chat**: 24/7 intelligent legal assistance.
+- 📄 **AI Document Analyzer**: Instant insights and risk extraction from legal PDFs.
+- 🎓 **Moot Court Simulator**: Immersive AI-hosted courtroom trial practice.
+- 📑 **IPC Dictionary**: Fast, searchable access to Indian Penal Code sections.
+- 🧠 **Strategy Generator**: AI-driven tactical advice for cases.
+- ⚖️ **Open Case Library**: Collaborative repository for shared legal research.
 
 ---
 
 ## 👩‍💻 Collaborators
 - **Team**: Lawyer.AI
-- **GitHub**: [3D-Lawyer.AI](https://github.com/lawyerai-system/3D-Lawyer.AI)
+- **GitHub Repository**: [Lawyer.AI--v3](https://github.com/lawyerai-system/Lawyer.AI--v3)
