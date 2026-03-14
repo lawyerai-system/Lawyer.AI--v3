@@ -21,8 +21,8 @@ const createTransporter = async () => {
     console.log('SMTP connection verified successfully');
     return transporter;
   } catch (error) {
-    console.error('Error creating transporter:', error);
-    return null;
+    console.error('SMTP Configuration Error:', error);
+    throw error; // Throw so caller knows the specific error
   }
 };
 
@@ -30,12 +30,9 @@ const createTransporter = async () => {
 exports.sendVerificationEmail = async (email, name, verificationToken) => {
   try {
     const transporter = await createTransporter();
-    if (!transporter) {
-      throw new Error('Failed to create mail transporter');
-    }
 
     // Frontend verification URL - using proper URL structure
-    const verificationUrl = `http://localhost:3000/verify-email/${verificationToken}`;
+    const verificationUrl = `http://localhost:5173/verify-email/${verificationToken}`;
 
     const mailOptions = {
       from: `"LawAI Support" <${process.env.EMAIL_USER}>`,
@@ -74,9 +71,6 @@ exports.sendVerificationEmail = async (email, name, verificationToken) => {
 exports.sendWelcomeEmail = async (email, name, role) => {
   try {
     const transporter = await createTransporter();
-    if (!transporter) {
-      throw new Error('Failed to create mail transporter');
-    }
 
     const roleSpecificContent = {
       lawyer: 'As a lawyer, you have access to all features including blog posting and answering questions in the courtroom.',
@@ -111,6 +105,53 @@ exports.sendWelcomeEmail = async (email, name, role) => {
     return true;
   } catch (error) {
     console.error('Error sending welcome email:', error);
+    throw error;
+  }
+};
+// Send password reset email
+exports.sendPasswordResetEmail = async (email, name, resetToken) => {
+  try {
+    const transporter = await createTransporter();
+
+    // Reset URL - matches active dev port
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+
+    const mailOptions = {
+      from: `"Lawyer.AI Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Password Reset Request – Lawyer.AI',
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 10px;">
+          <div style="background-color: #6C5DD3; padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">Lawyer.AI</h1>
+          </div>
+          <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
+            <p style="color: #555; line-height: 1.6;">Hello ${name},</p>
+            <p style="color: #555; line-height: 1.6;">We received a request to reset the password for your Lawyer.AI account. Click the button below to set a new password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background-color: #6C5DD3; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                Reset My Password
+              </a>
+            </div>
+            <p style="color: #777; font-size: 0.9rem;">This link will expire in 15 minutes. If you did not request a password reset, please ignore this email.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #999; font-size: 0.8rem; text-align: center;">&copy; 2026 Lawyer.AI. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+
+    console.log('Sending password reset email to:', email);
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('FATAL ERROR: Nodemailer reset email failed:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      stack: error.stack
+    });
     throw error;
   }
 };

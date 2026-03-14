@@ -162,7 +162,12 @@ const LoginForm = () => {
       </InputGroup>
 
       <div style={{ textAlign: 'right' }}>
-        <HelperText style={{ display: 'inline' }}>Forgot Password?</HelperText>
+        <HelperText 
+          style={{ display: 'inline' }} 
+          onClick={() => navigate('/forgot-password')}
+        >
+          Forgot Password?
+        </HelperText>
       </div>
 
       <SubmitButton type="submit" disabled={loading}>

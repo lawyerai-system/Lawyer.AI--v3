@@ -45,6 +45,8 @@ router.post('/google', authController.googleLoginFixed);
 router.get('/verify/:token', authController.verifyEmail);
 router.post('/resend-verification', authController.resendVerification);
 router.post('/logout', authController.logout);
+router.post('/forgot-password', authController.forgotPassword);
+router.patch('/reset-password/:token', authController.resetPassword);
 
 // Phone verification routes
 router.post('/send-verification', authController.sendVerification);

@@ -2,6 +2,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginSignupPage from './pages/Auth/LoginSignupPage';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import DashboardLayout from './components/Dashboard/DashboardLayout';
 import DashboardHome from './pages/Dashboard/DashboardHome';
@@ -64,6 +66,8 @@ function App() {
         <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<LoginSignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/login-redirect" element={<RoleRedirect />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<AboutPage />} />
